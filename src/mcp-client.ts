@@ -152,10 +152,18 @@ export class LogosDBClient {
 
   async listNamespaces(): Promise<string[]> {
     const raw = await this.callTool("logosdb_list", {});
-    return raw
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean);
+    try {
+      // Server returns JSON: { namespaces: Array<string | {name:string}>, ... }
+      // 0.11.0+ format is {name, count_live?, dim?}; older was plain string[]
+      const parsed = JSON.parse(raw) as {
+        namespaces?: Array<string | { name: string }>;
+      };
+      return (parsed.namespaces ?? []).map((ns) =>
+        typeof ns === "string" ? ns : ns.name
+      );
+    } catch {
+      return [];
+    }
   }
 
   /**

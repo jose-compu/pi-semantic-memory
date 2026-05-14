@@ -1,6 +1,6 @@
 {
   "name": "pi-semantic-memory",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Local-first semantic memory for Pi coding agent. Powered by LogosDB MCP server — vector search, zero cloud, stdio-only.",
   "type": "module",
   "main": "index.ts",
