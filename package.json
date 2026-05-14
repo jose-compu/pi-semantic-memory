@@ -1,0 +1,61 @@
+{
+  "name": "pi-semantic-memory",
+  "version": "1.0.0",
+  "description": "Local-first semantic memory for Pi coding agent. Powered by LogosDB MCP server — vector search, zero cloud, stdio-only.",
+  "type": "module",
+  "main": "index.ts",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "pi-coding-agent",
+    "memory",
+    "semantic-search",
+    "logosdb",
+    "mcp",
+    "local-first",
+    "vector-search",
+    "embeddings",
+    "rag"
+  ],
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "author": {
+    "name": "Jose Ignacio"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jose-compu/pi-semantic-memory.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jose-compu/pi-semantic-memory/issues"
+  },
+  "homepage": "https://github.com/jose-compu/pi-semantic-memory#readme",
+  "files": [
+    "index.ts",
+    "src/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.cjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": ">=0.1.0",
+    "@earendil-works/pi-coding-agent": ">=0.72.0"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}
