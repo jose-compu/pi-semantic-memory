@@ -1,3 +1,5 @@
+<img width="400" height="196" alt="image" src="https://github.com/user-attachments/assets/2d70e60d-3502-49ec-a2b1-2e0235a6dab2" />
+
 # pi-semantic-memory
 
 Local-first semantic memory for [Pi coding agent](https://pi.dev), powered by [LogosDB](https://github.com/jose-compu/logosdb).
