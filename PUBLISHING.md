@@ -56,7 +56,7 @@ pi install npm:pi-semantic-memory
 Or from a specific version:
 
 ```sh
-pi install npm:pi-semantic-memory@1.0.0
+pi install npm:pi-semantic-memory@1.0.2
 ```
 
 Or directly from git (useful before publishing):
@@ -78,10 +78,10 @@ Follow [semver](https://semver.org):
 | Change | Version bump |
 |---|---|
 | New tool, command, or hook behavior | minor (`1.1.0`) |
-| Bug fix, internal refactor | patch (`1.0.1`) |
+| Bug fix, internal refactor | patch (`1.0.2`) |
 | Breaking API or config change | major (`2.0.0`) |
 
-Update `CHANGELOG.md` before each release.
+Update `CHANGELOG.md` before each release. Current published patch: **1.0.2**.
 
 ## Useful npm commands
 
@@ -96,5 +96,5 @@ npm publish
 npm version patch && npm publish
 
 # Deprecate an old version
-npm deprecate pi-semantic-memory@"<1.0.0" "Upgrade to 1.0.0+"
+npm deprecate pi-semantic-memory@"<1.0.2" "Upgrade to 1.0.2+"
 ```
