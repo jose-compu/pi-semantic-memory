@@ -78,16 +78,26 @@ export class LogosDBClient {
       }
     });
 
-    this.proc.on("exit", () => {
+    this.proc.on("exit", (code, signal) => {
       rl.close(); // release reference to the dead stdout stream
       this.ready = false;
       this.proc = null;
+      // Fail outstanding RPCs immediately instead of waiting for the 60s timeout.
+      const reason = new Error(
+        signal
+          ? `logosdb-mcp-server exited (signal ${signal})`
+          : `logosdb-mcp-server exited (code ${code ?? "unknown"})`
+      );
+      for (const [id, handler] of this.pending) {
+        this.pending.delete(id);
+        handler.reject(reason);
+      }
     });
 
     await this.rpc("initialize", {
       protocolVersion: "2024-11-05",
       capabilities: {},
-      clientInfo: { name: "pi-semantic-memory", version: "1.0.0" },
+      clientInfo: { name: "pi-semantic-memory", version: "1.0.2" },
     });
     this.write({ jsonrpc: "2.0", method: "notifications/initialized" });
     this.ready = true;

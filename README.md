@@ -100,6 +100,10 @@ export LOGOS_MEMORY_MODE=project
 | `LOGOSDB_PATH` | `~/.pi/agent/logosdb` | Path to the LogosDB database directory |
 | `LOGOSDB_MCP_BIN` | _(auto)_ | Override the `logosdb-mcp-server` binary path |
 
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md). Latest: **1.0.2** — pending MCP RPCs are rejected immediately when the server process exits.
+
 ## License
 
 MIT
