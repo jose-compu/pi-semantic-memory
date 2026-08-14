@@ -63,9 +63,10 @@ const PROJECT_MARKERS = [
 
 function isIndexableDir(dir: string): boolean {
   const home = homedir();
-  if (!dir || dir === home || dir === "/" || dir.split("/").length < 3) {
-    return false;
-  }
+  if (!dir || dir === home) return false;
+  // Avoid indexing Unix root and Windows drive roots
+  const winDriveRoot = /^[A-Za-z]:\/?$/.test(dir.replace(/\\/g, '/'));
+  if (winDriveRoot || dir === '/') return false;
   return PROJECT_MARKERS.some((m) => existsSync(join(dir, m)));
 }
 
