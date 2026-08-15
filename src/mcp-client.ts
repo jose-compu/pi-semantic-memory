@@ -190,6 +190,22 @@ export class LogosDBClient {
   }
 
   /**
+   * Returns true if logosdb_info is likely broken (Windows mmap issue).
+   * The logosdb native bindings use MapViewOfFile which fails on some
+   * Windows configurations with ERROR_INVALID_HANDLE (code 6).
+   */
+  async testInfo(): Promise<boolean> {
+    try {
+      const ns = await this.listNamespaces();
+      if (ns.length === 0) return false;
+      await this.infoNamespace(ns[0]);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Index a file or directory into a namespace.
    * Skips .gitignore-excluded paths; only re-indexes files changed since the last run.
    */

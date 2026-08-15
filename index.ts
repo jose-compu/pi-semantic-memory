@@ -306,18 +306,25 @@ export default function (pi: ExtensionAPI) {
         const parts: string[] = [
           `mode=${config.mode}  storing→${sessionNs}  ${indexing ? "indexing…" : "idle"}`,
         ];
+        const infoOk = await client.testInfo().catch(() => false);
         for (const ns of nsList) {
-          try {
-            const info = await client.infoNamespace(ns);
-            parts.push(
-              `${ns}: ${info.countLive}/${info.count} live entries  dim=${info.dim}`
-            );
-          } catch {
-            parts.push(`${ns}: (info unavailable)`);
+          if (infoOk) {
+            try {
+              const info = await client.infoNamespace(ns);
+              parts.push(
+                `${ns}: ${info.countLive}/${info.count} live entries  dim=${info.dim}`
+              );
+            } catch {
+              parts.push(`${ns}: (info unavailable)`);
+            }
+          } else {
+            parts.push(ns);
           }
         }
         if (nsList.length === 0) {
           parts.push("(no collections)");
+        } else if (!infoOk) {
+          parts.push("(entry counts unavailable — Windows mmap limitation in logosdb)");
         }
         ui.notify(parts.join("  |  "), "info");
       } catch {
