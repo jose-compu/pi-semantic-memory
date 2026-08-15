@@ -163,8 +163,6 @@ export class LogosDBClient {
   async listNamespaces(): Promise<string[]> {
     const raw = await this.callTool("logosdb_list", {});
     try {
-      // Server returns JSON: { namespaces: Array<string | {name:string}>, ... }
-      // 0.11.0+ format is {name, count_live?, dim?}; older was plain string[]
       const parsed = JSON.parse(raw) as {
         namespaces?: Array<string | { name: string }>;
       };
@@ -174,6 +172,21 @@ export class LogosDBClient {
     } catch {
       return [];
     }
+  }
+
+  async infoNamespace(namespace: string): Promise<{
+    count: number;
+    countLive: number;
+    dim: number;
+    path: string;
+  }> {
+    const raw = await this.callTool("logosdb_info", { namespace });
+    return JSON.parse(raw) as {
+      count: number;
+      countLive: number;
+      dim: number;
+      path: string;
+    };
   }
 
   /**
