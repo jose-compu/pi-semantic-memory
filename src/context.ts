@@ -55,12 +55,13 @@ export async function buildMemoryContext(
   query: string,
   projectNs: string,
   config: MemoryConfig,
-  topK = TOP_K
+  topK = TOP_K,
+  hybrid = true
 ): Promise<string | null> {
   if (config.mode === "project") {
     let result: string;
     try {
-      result = (await client.search(query, projectNs, topK)).trim();
+      result = (await client.search(query, projectNs, topK, hybrid)).trim();
     } catch {
       return null;
     }
@@ -70,9 +71,9 @@ export async function buildMemoryContext(
 
   // global mode: search both namespaces in parallel
   const [globalSettled, projectSettled] = await Promise.allSettled([
-    client.search(query, GLOBAL_NS, topK),
+    client.search(query, GLOBAL_NS, topK, hybrid),
     projectNs !== GLOBAL_NS
-      ? client.search(query, projectNs, topK)
+      ? client.search(query, projectNs, topK, hybrid)
       : Promise.resolve(""),
   ]);
 

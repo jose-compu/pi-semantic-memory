@@ -97,7 +97,7 @@ export class LogosDBClient {
     await this.rpc("initialize", {
       protocolVersion: "2024-11-05",
       capabilities: {},
-      clientInfo: { name: "pi-semantic-memory", version: "1.0.2" },
+      clientInfo: { name: "pi-semantic-memory", version: "1.1.0" },
     });
     this.write({ jsonrpc: "2.0", method: "notifications/initialized" });
     this.ready = true;
@@ -151,12 +151,14 @@ export class LogosDBClient {
   async search(
     query: string,
     namespace: string,
-    topK = 5
+    topK = 5,
+    hybrid = true
   ): Promise<string> {
     return this.callTool("logosdb_search", {
       query,
       namespace,
       top_k: topK,
+      hybrid,
     });
   }
 

@@ -104,11 +104,9 @@ export default function (pi: ExtensionAPI) {
   });
 
   pi.on("before_agent_start", async (event, _ctx) => {
-    const messages = (
-      event as unknown as {
-        messages?: Array<{ role: string; content: unknown }>;
-      }
-    ).messages ?? [];
+    const messages =
+      (event as { messages?: Array<{ role: string; content: unknown }> })
+        .messages ?? [];
     const query = extractQuery(messages, event.systemPrompt);
     if (!query.trim()) return;
     try {
@@ -205,11 +203,18 @@ export default function (pi: ExtensionAPI) {
         top_k: Type.Optional(
           Type.Number({ description: "Max results (default: 5)" })
         ),
+        hybrid: Type.Optional(
+          Type.Boolean({
+            description:
+              "Combine vector similarity with lexical (BM25) scoring for better recall (default: true)",
+            default: true,
+          })
+        ),
       }),
-      async execute(_id, { query, namespace, top_k }) {
+      async execute(_id, { query, namespace, top_k, hybrid }) {
         const ns = namespace || GLOBAL_NS;
         try {
-          const result = await client.search(query, ns, top_k ?? 5);
+          const result = await client.search(query, ns, top_k ?? 5, hybrid ?? true);
           return {
             content: [
               { type: "text" as const, text: result || "no results" },
