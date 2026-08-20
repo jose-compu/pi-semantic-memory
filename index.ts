@@ -63,9 +63,10 @@ const PROJECT_MARKERS = [
 
 function isIndexableDir(dir: string): boolean {
   const home = homedir();
-  if (!dir || dir === home || dir === "/" || dir.split("/").length < 3) {
-    return false;
-  }
+  if (!dir || dir === home) return false;
+  // Avoid indexing Unix root and Windows drive roots
+  const winDriveRoot = /^[A-Za-z]:\/?$/.test(dir.replace(/\\/g, '/'));
+  if (winDriveRoot || dir === '/') return false;
   return PROJECT_MARKERS.some((m) => existsSync(join(dir, m)));
 }
 
@@ -306,12 +307,25 @@ export default function (pi: ExtensionAPI) {
       const ui = (ctx as { ui: { notify(m: string, l?: string): void } }).ui;
       try {
         await client.ensureStarted();
-        const ns = await client.listNamespaces();
+        const nsList = await client.listNamespaces();
         const sessionNs = sessionNamespace(config, projectNs);
-        ui.notify(
-          `mode=${config.mode}  storing→${sessionNs}  ${indexing ? "indexing…" : "idle"}  [${ns.join(", ") || "none"}]`,
-          "info"
-        );
+        const parts: string[] = [
+          `mode=${config.mode}  storing→${sessionNs}  ${indexing ? "indexing…" : "idle"}`,
+        ];
+        for (const ns of nsList) {
+          try {
+            const info = await client.infoNamespace(ns);
+            parts.push(
+              `${ns}: ${info.countLive}/${info.count} live entries  dim=${info.dim}`
+            );
+          } catch {
+            parts.push(`${ns}: (info unavailable)`);
+          }
+        }
+        if (nsList.length === 0) {
+          parts.push("(no collections)");
+        }
+        ui.notify(parts.join("  |  "), "info");
       } catch {
         ui.notify("memory offline  /logos-setup to diagnose", "warning");
       }
