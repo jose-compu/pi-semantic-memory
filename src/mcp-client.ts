@@ -54,6 +54,7 @@ export class LogosDBClient {
     this.proc = spawn(bin, args, {
       env: { ...process.env, LOGOSDB_PATH: this.dbPath },
       stdio: ["pipe", "pipe", "pipe"],
+      ...(process.platform === "win32" ? { shell: true } : {}),
     }) as ChildProcessWithoutNullStreams;
 
     const rl = createInterface({ input: this.proc.stdout });
@@ -208,11 +209,24 @@ function resolveCmd(): [string, ...string[]] {
   const envBin = process.env.LOGOSDB_MCP_BIN;
   if (envBin) return [envBin];
 
-  const which = spawnSync(
-    process.platform === "win32" ? "where" : "which",
-    ["logosdb-mcp-server"],
-    { encoding: "utf8" }
-  );
+  if (process.platform === "win32") {
+    const npx = spawnSync("where", ["npx.cmd"], { encoding: "utf8" });
+    const npxPath = npx.status === 0
+      ? npx.stdout.trim().split("\n")[0]
+      : undefined;
+
+    const which = spawnSync("where", ["logosdb-mcp-server"], { encoding: "utf8" });
+    if (which.status === 0 && which.stdout.trim()) {
+      const cmdPath = which.stdout.trim().split("\n")[0];
+      return [cmdPath.endsWith(".cmd") ? cmdPath : `${cmdPath}.cmd`];
+    }
+    if (npxPath) {
+      return [npxPath, "-y", "logosdb-mcp-server"];
+    }
+    return ["cmd.exe", "/c", "npx.cmd -y logosdb-mcp-server"];
+  }
+
+  const which = spawnSync("which", ["logosdb-mcp-server"], { encoding: "utf8" });
   if (which.status === 0 && which.stdout.trim()) {
     return ["logosdb-mcp-server"];
   }
