@@ -306,12 +306,32 @@ export default function (pi: ExtensionAPI) {
       const ui = (ctx as { ui: { notify(m: string, l?: string): void } }).ui;
       try {
         await client.ensureStarted();
-        const ns = await client.listNamespaces();
+        const nsList = await client.listNamespaces();
         const sessionNs = sessionNamespace(config, projectNs);
-        ui.notify(
-          `mode=${config.mode}  storing→${sessionNs}  ${indexing ? "indexing…" : "idle"}  [${ns.join(", ") || "none"}]`,
-          "info"
-        );
+        const parts: string[] = [
+          `mode=${config.mode}  storing→${sessionNs}  ${indexing ? "indexing…" : "idle"}`,
+        ];
+        const infoOk = await client.testInfo().catch(() => false);
+        for (const ns of nsList) {
+          if (infoOk) {
+            try {
+              const info = await client.infoNamespace(ns);
+              parts.push(
+                `${ns}: ${info.countLive}/${info.count} live entries  dim=${info.dim}`
+              );
+            } catch {
+              parts.push(`${ns}: (info unavailable)`);
+            }
+          } else {
+            parts.push(ns);
+          }
+        }
+        if (nsList.length === 0) {
+          parts.push("(no collections)");
+        } else if (!infoOk) {
+          parts.push("(entry counts unavailable — Windows mmap limitation in logosdb)");
+        }
+        ui.notify(parts.join("  |  "), "info");
       } catch {
         ui.notify("memory offline  /logos-setup to diagnose", "warning");
       }

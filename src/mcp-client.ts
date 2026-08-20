@@ -165,8 +165,6 @@ export class LogosDBClient {
   async listNamespaces(): Promise<string[]> {
     const raw = await this.callTool("logosdb_list", {});
     try {
-      // Server returns JSON: { namespaces: Array<string | {name:string}>, ... }
-      // 0.11.0+ format is {name, count_live?, dim?}; older was plain string[]
       const parsed = JSON.parse(raw) as {
         namespaces?: Array<string | { name: string }>;
       };
@@ -175,6 +173,37 @@ export class LogosDBClient {
       );
     } catch {
       return [];
+    }
+  }
+
+  async infoNamespace(namespace: string): Promise<{
+    count: number;
+    countLive: number;
+    dim: number;
+    path: string;
+  }> {
+    const raw = await this.callTool("logosdb_info", { namespace });
+    return JSON.parse(raw) as {
+      count: number;
+      countLive: number;
+      dim: number;
+      path: string;
+    };
+  }
+
+  /**
+   * Returns true if logosdb_info is likely broken (Windows mmap issue).
+   * The logosdb native bindings use MapViewOfFile which fails on some
+   * Windows configurations with ERROR_INVALID_HANDLE (code 6).
+   */
+  async testInfo(): Promise<boolean> {
+    try {
+      const ns = await this.listNamespaces();
+      if (ns.length === 0) return false;
+      await this.infoNamespace(ns[0]);
+      return true;
+    } catch {
+      return false;
     }
   }
 
