@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.0
+
+### Added
+
+- `LOGOS_TOP_K` env var (1–50, default 5) controls automatic memory injection size and the default `logos_recall` `top_k`
+
+## 1.1.0
+
+### Added
+
+- Hybrid search and `logos_recall` hybrid parameter
+
 ## 1.0.2
 
 ### Fixed

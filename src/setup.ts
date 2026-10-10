@@ -1,4 +1,5 @@
 import type { LogosDBClient } from "./mcp-client.js";
+import { loadConfig } from "./config.js";
 
 export type CommandCtx = {
   ui: { notify(msg: string, level?: "info" | "warning" | "error"): void };
@@ -26,7 +27,7 @@ export async function runSetup(
   }
 
   ctx.ui.notify(
-    `memory ready  db=${client.dbPath}  ${count} collection${count !== 1 ? "s" : ""}`,
+    `memory ready  db=${client.dbPath}  ${count} collection${count !== 1 ? "s" : ""}  topK=${loadConfig().topK}`,
     "info"
   );
 }

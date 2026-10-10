@@ -114,7 +114,8 @@ export default function (pi: ExtensionAPI) {
         client,
         query,
         projectNs,
-        config
+        config,
+        config.topK
       );
       if (!memory) return;
       return { systemPrompt: event.systemPrompt + memory };
@@ -214,7 +215,7 @@ export default function (pi: ExtensionAPI) {
       async execute(_id, { query, namespace, top_k, hybrid }) {
         const ns = namespace || GLOBAL_NS;
         try {
-          const result = await client.search(query, ns, top_k ?? 5, hybrid ?? true);
+          const result = await client.search(query, ns, top_k ?? config.topK, hybrid ?? true);
           return {
             content: [
               { type: "text" as const, text: result || "no results" },
@@ -309,7 +310,7 @@ export default function (pi: ExtensionAPI) {
         const ns = await client.listNamespaces();
         const sessionNs = sessionNamespace(config, projectNs);
         ui.notify(
-          `mode=${config.mode}  storing→${sessionNs}  ${indexing ? "indexing…" : "idle"}  [${ns.join(", ") || "none"}]`,
+          `mode=${config.mode}  topK=${config.topK}  storing→${sessionNs}  ${indexing ? "indexing…" : "idle"}  [${ns.join(", ") || "none"}]`,
           "info"
         );
       } catch {
