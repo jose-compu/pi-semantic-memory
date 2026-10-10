@@ -15,11 +15,24 @@ export type MemoryMode = "global" | "project";
 
 export interface MemoryConfig {
   mode: MemoryMode;
+  /** Results injected on each prompt. Default 5; override with LOGOS_TOP_K (1–50). */
+  topK: number;
+}
+
+const DEFAULT_TOP_K = 5;
+const MAX_TOP_K = 50;
+
+export function parseTopK(raw: string | undefined): number {
+  if (raw == null || raw.trim() === "") return DEFAULT_TOP_K;
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 1 || n > MAX_TOP_K) return DEFAULT_TOP_K;
+  return n;
 }
 
 export function loadConfig(): MemoryConfig {
   return {
     mode: process.env.LOGOS_MEMORY_MODE === "project" ? "project" : "global",
+    topK: parseTopK(process.env.LOGOS_TOP_K),
   };
 }
 
